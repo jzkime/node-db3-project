@@ -1,3 +1,5 @@
+const db = require('../../data/db-config')
+
 function find() { // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
@@ -15,9 +17,15 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
+
+    return db('schemes as sc')
+      .leftJoin('Steps as st', 'st.scheme_id', 'sc.scheme_id')
+      .select('sc.*')
+      .groupBy('sc.scheme_id')
+      .count('st.step_id as number_of_steps')
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(schID) { // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -83,6 +91,19 @@ function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
+
+      const arr = await db('schemes as sch')
+        .leftJoin('steps as st', 'sch.scheme_id', 'st.scheme_id')
+        .select('sch.scheme_id', 'sch.scheme_name', 'step_id', 'step_number', 'instructions')
+        .where({'sch.scheme_id': schID})
+        .orderBy('step_number')
+      const { scheme_name, scheme_id} = arr[0];
+      return ({
+        scheme_name, scheme_id,
+        steps: arr
+          .filter(st => st.step_id !== null)
+          .map(item => ({step_id: item.step_id, step_number: item.step_number, instructions: item.instructions}))
+      })
 }
 
 function findSteps(scheme_id) { // EXERCISE C
@@ -122,10 +143,17 @@ function addStep(scheme_id, step) { // EXERCISE E
   */
 }
 
+function findSchemeId(schID) {
+  return db('schemes')
+    .where('scheme_id', schID)
+    .first()
+}
+
 module.exports = {
   find,
   findById,
   findSteps,
   add,
   addStep,
+  findSchemeId
 }
