@@ -9,8 +9,10 @@ const Schemes = require('./scheme-model')
 */
 const checkSchemeId = async (req, res, next) => {
   const { scheme_id } = req.params
-  let sch = await Schemes.findSchemeId(scheme_id)
+
+  let sch = await Schemes.findById(scheme_id)
     if(!sch) return next({status: 404, message: `scheme with scheme_id ${scheme_id} not found`})
+  req.scheme = sch
   next()
 }
 

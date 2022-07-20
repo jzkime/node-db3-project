@@ -97,7 +97,8 @@ async function findById(schID) { // EXERCISE B
         .select('sch.scheme_id', 'sch.scheme_name', 'step_id', 'step_number', 'instructions')
         .where({'sch.scheme_id': schID})
         .orderBy('step_number')
-      const { scheme_name, scheme_id} = arr[0];
+        if( !arr.length ) return;
+        const { scheme_name, scheme_id} = arr[0];
       return ({
         scheme_name, scheme_id,
         steps: arr
@@ -155,17 +156,10 @@ function addStep(scheme_id, step) { // EXERCISE E
   .then(() => findSteps(scheme_id))
 }
 
-function findSchemeId(schID) {
-  return db('schemes')
-    .where('scheme_id', schID)
-    .first()
-}
-
 module.exports = {
   find,
   findById,
   findSteps,
   add,
-  addStep,
-  findSchemeId
+  addStep
 }
